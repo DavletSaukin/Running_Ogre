@@ -18,7 +18,7 @@ const float JUMP_FORCE = 7.0f;
 const float YAW_SENSITIVITY = 0.1f;
 const float INAIR_THRESHOLD_TIME = 0.1f;
 
-// Компонент персонажа, ответственный за физическое перемещение при помощи элементов управления и анимацию
+// РљРѕРјРїРѕРЅРµРЅС‚ РїРµСЂСЃРѕРЅР°Р¶Р°, РѕС‚РІРµС‚СЃС‚РІРµРЅРЅС‹Р№ Р·Р° С„РёР·РёС‡РµСЃРєРѕРµ РїРµСЂРµРјРµС‰РµРЅРёРµ РїСЂРё РїРѕРјРѕС‰Рё СЌР»РµРјРµРЅС‚РѕРІ СѓРїСЂР°РІР»РµРЅРёСЏ Рё Р°РЅРёРјР°С†РёСЋ
 class Character : public LogicComponent
 {
     URHO3D_OBJECT(Character, LogicComponent);
@@ -29,23 +29,23 @@ public:
     // Register object factory and attributes
     static void RegisterObject(Context* context);
     
-    // Управление запуском. Вызывается базовым классом LogicComponent
+    // РЈРїСЂР°РІР»РµРЅРёРµ Р·Р°РїСѓСЃРєРѕРј. Р’С‹Р·С‹РІР°РµС‚СЃСЏ Р±Р°Р·РѕРІС‹Рј РєР»Р°СЃСЃРѕРј LogicComponent
     virtual void Start();
-    // Управление обновлением физического мира. Вызывается базовым классом LogicComponent
+    // РЈРїСЂР°РІР»РµРЅРёРµ РѕР±РЅРѕРІР»РµРЅРёРµРј С„РёР·РёС‡РµСЃРєРѕРіРѕ РјРёСЂР°. Р’С‹Р·С‹РІР°РµС‚СЃСЏ Р±Р°Р·РѕРІС‹Рј РєР»Р°СЃСЃРѕРј LogicComponent
     virtual void FixedUpdate(float timeStep);
     
-    // Элементы управления движением. Назначаются основной программой каждый кадр
+    // Р­Р»РµРјРµРЅС‚С‹ СѓРїСЂР°РІР»РµРЅРёСЏ РґРІРёР¶РµРЅРёРµРј. РќР°Р·РЅР°С‡Р°СЋС‚СЃСЏ РѕСЃРЅРѕРІРЅРѕР№ РїСЂРѕРіСЂР°РјРјРѕР№ РєР°Р¶РґС‹Р№ РєР°РґСЂ
     Controls controls_;
     
 private:
-    // Управление событием столкновения
+    // РЈРїСЂР°РІР»РµРЅРёРµ СЃРѕР±С‹С‚РёРµРј СЃС‚РѕР»РєРЅРѕРІРµРЅРёСЏ
     void HandleNodeCollision(StringHash eventType, VariantMap& eventData);
 	void HandleColissionStart(StringHash eventType, VariantMap& eventData);
     
-    // Флаг нахождения на земле
+    // Р¤Р»Р°Рі РЅР°С…РѕР¶РґРµРЅРёСЏ РЅР° Р·РµРјР»Рµ
     bool onGround_;
-    // Флаг прыжка
+    // Р¤Р»Р°Рі РїСЂС‹Р¶РєР°
     bool okToJump_;
-    // Таймер нахождения в воздухе
+    // РўР°Р№РјРµСЂ РЅР°С…РѕР¶РґРµРЅРёСЏ РІ РІРѕР·РґСѓС…Рµ
     float inAirTimer_;
 };
