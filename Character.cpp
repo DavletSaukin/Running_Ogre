@@ -38,7 +38,7 @@ void Character::RegisterObject(Context* context)
 
 void Character::Start()
 {
-    // Êîìïîíåíò âñòàâëåí â åãî íîäó. Ïîäïèñûâàåìñÿ íà ñîáûòèÿ
+    // ÐšÐ¾Ð¼Ð¿Ð¾Ð½ÐµÐ½Ñ‚ Ð²ÑÑ‚Ð°Ð²Ð»ÐµÐ½ Ð² ÐµÐ³Ð¾ Ð½Ð¾Ð´Ñƒ. ÐŸÐ¾Ð´Ð¿Ð¸ÑÑ‹Ð²Ð°ÐµÐ¼ÑÑ Ð½Ð° ÑÐ¾Ð±Ñ‹Ñ‚Ð¸Ñ
 	SubscribeToEvent(GetNode(), E_NODECOLLISIONSTART, URHO3D_HANDLER(Character, HandleColissionStart));
     SubscribeToEvent(GetNode(), E_NODECOLLISION, URHO3D_HANDLER(Character, HandleNodeCollision));
 }
@@ -121,7 +121,7 @@ void Character::FixedUpdate(float timeStep)
     onGround_ = false;
 
 
-	//Ìîíèòîðèíã ïåðåìåùåíèÿ ïåðñîíàæà
+	//ÐœÐ¾Ð½Ð¸Ñ‚Ð¾Ñ€Ð¸Ð½Ð³ Ð¿ÐµÑ€ÐµÐ¼ÐµÑ‰ÐµÐ½Ð¸Ñ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð¶Ð°
 	const BoundingBox box_(Vector3(4.0f, 0.0f, 0.0f), Vector3(90.0f, 0.0f, -91.0f));
 	Vector3 currPos = node_->GetPosition();
 
@@ -135,7 +135,7 @@ void Character::FixedUpdate(float timeStep)
 
 		// Construct new Text object, set string to display and font to use
 		Text* WinnerText = ui->GetRoot()->CreateChild<Text>();
-		WinnerText->SetText(L"ÏÎÁÅÄÀ");
+		WinnerText->SetText(L"ÐŸÐžÐ‘Ð•Ð”Ð");
 		WinnerText->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 45);
 		// The text has multiple rows. Center them in relation to each other
 		WinnerText->SetTextAlignment(HA_CENTER);
@@ -188,7 +188,7 @@ void Character::HandleColissionStart(StringHash eventType, VariantMap& eventData
 		// Construct new Text object, set string to display and font to use
 		Text* failText = ui->GetRoot()->CreateChild<Text>();
 		failText->SetText(
-			L"ÂÛ ÏÐÎÈÃÐÀËÈ"
+			L"Ð’Ð« ÐŸÐ ÐžÐ˜Ð“Ð ÐÐ›Ð˜"
 		);
 		failText->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 45);
 		// The text has multiple rows. Center them in relation to each other
