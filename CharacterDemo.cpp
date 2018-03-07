@@ -37,7 +37,7 @@ CharacterDemo::CharacterDemo(Context* context) :
     Sample(context),
     firstPerson_(false)
 {
-    // Зарегистрируем фабрику и атрибуты для компонента Character, чтобы он мог быть создан с помощью CreateComponent и загружен / сохранен
+    // Р—Р°СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј С„Р°Р±СЂРёРєСѓ Рё Р°С‚СЂРёР±СѓС‚С‹ РґР»СЏ РєРѕРјРїРѕРЅРµРЅС‚Р° Character, С‡С‚РѕР±С‹ РѕРЅ РјРѕРі Р±С‹С‚СЊ СЃРѕР·РґР°РЅ СЃ РїРѕРјРѕС‰СЊСЋ CreateComponent Рё Р·Р°РіСЂСѓР¶РµРЅ / СЃРѕС…СЂР°РЅРµРЅ
     Character::RegisterObject(context);
 	context->RegisterFactory<Shooting>();
 	context->RegisterFactory<Mover>();
@@ -49,21 +49,21 @@ CharacterDemo::~CharacterDemo()
 
 void CharacterDemo::Start()
 {
-    // Выполнение запуска базового класса
+    // Р’С‹РїРѕР»РЅРµРЅРёРµ Р·Р°РїСѓСЃРєР° Р±Р°Р·РѕРІРѕРіРѕ РєР»Р°СЃСЃР°
     Sample::Start();
     if (touchEnabled_)
         touch_ = new Touch(context_, TOUCH_SENSITIVITY);
 
-    // Создание содержимого статической сцены
+    // РЎРѕР·РґР°РЅРёРµ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ СЃС‚Р°С‚РёС‡РµСЃРєРѕР№ СЃС†РµРЅС‹
     CreateScene();
 
-    // Создание управляемого персонажа
+    // РЎРѕР·РґР°РЅРёРµ СѓРїСЂР°РІР»СЏРµРјРѕРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р°
     CreateCharacter();
 
-    // Создание UI
+    // РЎРѕР·РґР°РЅРёРµ UI
     CreateInstructions();
 
-    // Подпиcка на необходимые события
+    // РџРѕРґРїРёcРєР° РЅР° РЅРµРѕР±С…РѕРґРёРјС‹Рµ СЃРѕР±С‹С‚РёСЏ
     SubscribeToEvents();
 
     // Set the mouse mode to use in the sample
@@ -76,17 +76,17 @@ void CharacterDemo::CreateScene()
 
     scene_ = new Scene(context_);
 
-    // Создание компонентов подсистемы сцены
+    // РЎРѕР·РґР°РЅРёРµ РєРѕРјРїРѕРЅРµРЅС‚РѕРІ РїРѕРґСЃРёСЃС‚РµРјС‹ СЃС†РµРЅС‹
     scene_->CreateComponent<Octree>();
     scene_->CreateComponent<PhysicsWorld>();
 
-    //Создание камеры
+    //РЎРѕР·РґР°РЅРёРµ РєР°РјРµСЂС‹
     cameraNode_ = new Node(context_);
     Camera* camera = cameraNode_->CreateComponent<Camera>();
     camera->SetFarClip(300.0f);
     GetSubsystem<Renderer>()->SetViewport(0, new Viewport(context_, scene_, camera));
 
-    // Создание сцены
+    // РЎРѕР·РґР°РЅРёРµ СЃС†РµРЅС‹
     Node* zoneNode = scene_->CreateChild("Zone");
     Zone* zone = zoneNode->CreateComponent<Zone>();
     zone->SetAmbientColor(Color(0.15f, 0.15f, 0.15f));
@@ -95,7 +95,7 @@ void CharacterDemo::CreateScene()
     zone->SetFogEnd(300.0f);
     zone->SetBoundingBox(BoundingBox(-1000.0f, 1000.0f));
 
-    // Создание источника света
+    // РЎРѕР·РґР°РЅРёРµ РёСЃС‚РѕС‡РЅРёРєР° СЃРІРµС‚Р°
     Node* lightNode = scene_->CreateChild("DirectionalLight");
     lightNode->SetDirection(Vector3(0.3f, -0.5f, 0.425f));
     Light* light = lightNode->CreateComponent<Light>();
@@ -105,7 +105,7 @@ void CharacterDemo::CreateScene()
     light->SetShadowCascade(CascadeParameters(10.0f, 50.0f, 200.0f, 0.0f, 0.8f));
     light->SetSpecularIntensity(0.5f);
 
-    // Создание пола
+    // РЎРѕР·РґР°РЅРёРµ РїРѕР»Р°
     Node* floorNode = scene_->CreateChild("Floor");
     floorNode->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
     floorNode->SetScale(Vector3(200.0f, 1.0f, 200.0f));
@@ -120,9 +120,9 @@ void CharacterDemo::CreateScene()
     CollisionShape* shape = floorNode->CreateComponent<CollisionShape>();
     shape->SetBox(Vector3::ONE);
 
-    //создаём стены
+    //СЃРѕР·РґР°С‘Рј СЃС‚РµРЅС‹
 
-	//стена с пушками
+	//СЃС‚РµРЅР° СЃ РїСѓС€РєР°РјРё
     for (unsigned int i = 0; i < 14; i++)
     {
 		float scale = 4.0f;
@@ -142,7 +142,7 @@ void CharacterDemo::CreateScene()
 		shape->SetBox(Vector3::ONE);
     }
 
-	//справа от пушек
+	//СЃРїСЂР°РІР° РѕС‚ РїСѓС€РµРє
 	for (unsigned int i = 0; i < 28; i++)
 	{
 		float scale = 4.0f;
@@ -162,7 +162,7 @@ void CharacterDemo::CreateScene()
 		shape->SetBox(Vector3::ONE);
 	}
 
-	//напротив пушек
+	//РЅР°РїСЂРѕС‚РёРІ РїСѓС€РµРє
 	for (unsigned int i = 0; i < 30; i++)
 	{
 		float scale = 4.0f;
@@ -182,7 +182,7 @@ void CharacterDemo::CreateScene()
 		shape->SetBox(Vector3::ONE);
 	}
 
-	//слева от пушек
+	//СЃР»РµРІР° РѕС‚ РїСѓС€РµРє
 	for (unsigned int i = 0; i < 24; i++)
 	{
 		float scale = 4.0f;
@@ -201,13 +201,13 @@ void CharacterDemo::CreateScene()
 		CollisionShape* shape = boxNode->CreateComponent<CollisionShape>();
 		shape->SetBox(Vector3::ONE);
 	}
-	//конец создания стен
+	//РєРѕРЅРµС† СЃРѕР·РґР°РЅРёСЏ СЃС‚РµРЅ
 
 	
-	//создаём...
+	//СЃРѕР·РґР°С‘Рј...
 	for (unsigned int i = 0; i < 11; ++i)
 	{
-		//...пушки
+		//...РїСѓС€РєРё
 
 		float scale = 1.5f;
 
@@ -249,7 +249,7 @@ void CharacterDemo::CreateScene()
 			state->SetTime(5.0f);
 		}*/
 
-		//...ядра
+		//...СЏРґСЂР°
 
 		Node* cannonballNode = scene_->CreateChild("Cannonball");
 		const Vector3 pos = cannonNode->GetChild("Forward", true)->GetChild("CannonballPlace", true)->GetWorldPosition();
@@ -277,7 +277,7 @@ void CharacterDemo::CreateScene()
 	}
 
 	
-	// создаём патруль из ниндзей
+	// СЃРѕР·РґР°С‘Рј РїР°С‚СЂСѓР»СЊ РёР· РЅРёРЅРґР·РµР№
 	const unsigned NUM_MODELS = 10;
 	const float MODEL_MOVE_SPEED = 2.0f;
 	const float MODEL_ROTATE_SPEED = 100.0f;
@@ -359,8 +359,8 @@ void CharacterDemo::CreateCharacter()
     body->SetCollisionLayer(1);
     body->SetMass(1.0f);
 
-    // Устанавливаем нулевой угловой коэффициент, чтобы физика не поворачивала персонажа сама по себе.
-	// Вместо этого мы будем управлять персонажем вручную
+    // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅСѓР»РµРІРѕР№ СѓРіР»РѕРІРѕР№ РєРѕСЌС„С„РёС†РёРµРЅС‚, С‡С‚РѕР±С‹ С„РёР·РёРєР° РЅРµ РїРѕРІРѕСЂР°С‡РёРІР°Р»Р° РїРµСЂСЃРѕРЅР°Р¶Р° СЃР°РјР° РїРѕ СЃРµР±Рµ.
+	// Р’РјРµСЃС‚Рѕ СЌС‚РѕРіРѕ РјС‹ Р±СѓРґРµРј СѓРїСЂР°РІР»СЏС‚СЊ РїРµСЂСЃРѕРЅР°Р¶РµРј РІСЂСѓС‡РЅСѓСЋ
     body->SetAngularFactor(Vector3::ZERO);
 
     // Set the rigidbody to signal collision also when in rest, so that we get ground collisions properly
@@ -384,8 +384,8 @@ void CharacterDemo::CreateInstructions()
     // Construct new Text object, set string to display and font to use
     Text* instructionText = ui->GetRoot()->CreateChild<Text>();
     instructionText->SetText(
-        L"Управление с помощью WASD и мыши\n"
-        L"пробел - прыжок, F - менять камеру"
+        L"РЈРїСЂР°РІР»РµРЅРёРµ СЃ РїРѕРјРѕС‰СЊСЋ WASD Рё РјС‹С€Рё\n"
+        L"РїСЂРѕР±РµР» - РїСЂС‹Р¶РѕРє, F - РјРµРЅСЏС‚СЊ РєР°РјРµСЂСѓ"
     );
     instructionText->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 15);
     // The text has multiple rows. Center them in relation to each other
