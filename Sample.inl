@@ -34,7 +34,7 @@ Sample::Sample(Context* context) :
 
 void Sample::Setup()
 {
-    // Изменяем параметры запуска движка
+    // РР·РјРµРЅСЏРµРј РїР°СЂР°РјРµС‚СЂС‹ Р·Р°РїСѓСЃРєР° РґРІРёР¶РєР°
     engineParameters_[EP_WINDOW_TITLE] = GetTypeName();
     engineParameters_[EP_LOG_NAME]     = GetSubsystem<FileSystem>()->GetAppPreferencesDir("urho3d", "logs") + GetTypeName() + ".log";
     engineParameters_[EP_FULL_SCREEN]  = false;
@@ -58,13 +58,13 @@ void Sample::Start()
 
     CreateConsoleAndDebugHud();
 
-	//Подписываемся на...
+	//РџРѕРґРїРёСЃС‹РІР°РµРјСЃСЏ РЅР°...
 
-    // ...событие нажатия клавиши
+    // ...СЃРѕР±С‹С‚РёРµ РЅР°Р¶Р°С‚РёСЏ РєР»Р°РІРёС€Рё
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(Sample, HandleKeyDown));
-    // ...ключевое событие
+    // ...РєР»СЋС‡РµРІРѕРµ СЃРѕР±С‹С‚РёРµ
     SubscribeToEvent(E_KEYUP, URHO3D_HANDLER(Sample, HandleKeyUp));
-    // ...событие обновления сцены
+    // ...СЃРѕР±С‹С‚РёРµ РѕР±РЅРѕРІР»РµРЅРёСЏ СЃС†РµРЅС‹
     SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Sample, HandleSceneUpdate));
 }
 
