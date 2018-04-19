@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Urho3D/Scene/LogicComponent.h>
-#include <Urho3D\Math\BoundingBox.h>
 
 using namespace Urho3D;
 
@@ -14,23 +13,22 @@ public:
 	/// Construct.
 	Mover(Context* context);
 
+	// ”правление запуском. ¬ызываетс¤ базовым классом LogicComponent
+	virtual void Start();
+
 	/// Set motion parameters: forward movement speed, rotation speed, and movement boundaries.
-	void SetParameters(float moveSpeed, float rotateSpeed, const BoundingBox& bounds);
+	void SetParameters(float moveSpeed, Vector3 dir);
 	/// Handle scene update. Called by LogicComponent base class.
 	virtual void Update(float timeStep);
 
-	/// Return forward movement speed.
+	/// возвращает скорость перемещени¤
 	float GetMoveSpeed() const { return moveSpeed_; }
-	/// Return rotation speed.
-	float GetRotationSpeed() const { return rotationSpeed_; }
-	/// Return movement boundaries.
-	const BoundingBox& GetBounds() const { return bounds_; }
 
 private:
-	/// Forward movement speed.
+	/// скорость перемещени¤
 	float moveSpeed_;
-	/// Rotation speed.
-	float rotationSpeed_;
-	/// Movement boundaries.
-	BoundingBox bounds_;
+	///направление изначального движени¤
+	Vector3 direction_;
+
+	void HandleColissionStart(StringHash eventType, VariantMap& eventData);
 };
