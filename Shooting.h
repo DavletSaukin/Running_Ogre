@@ -11,10 +11,15 @@ class Shooting : public LogicComponent
 public:
 	Shooting(Context* context);
 
+	// Управление запуском. Вызывается базовым классом LogicComponent
+	virtual void Start();
+
 	virtual void Update(float timeStep);
-	void SetParameters(Vector3 sPos, BoundingBox box);
+	void SetParameters(Vector3 sPos, Vector3 dir);
 
 private:
 	Vector3 startPos;
-	BoundingBox box_;
+	Vector3 direction;
+
+	void HandleColissionStart(StringHash eventType, VariantMap& eventData);
 };
