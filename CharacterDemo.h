@@ -98,5 +98,5 @@ private:
     /// The controllable character component.
     WeakPtr<Character> character_;
     /// First person camera flag.
-    bool firstPerson_;
+    bool viewFromAbove_;
 };
