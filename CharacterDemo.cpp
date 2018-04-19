@@ -22,6 +22,7 @@
 #include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
+#include <random>
 
 #include "Character.h"
 #include "CharacterDemo.h"
@@ -35,7 +36,7 @@ URHO3D_DEFINE_APPLICATION_MAIN(CharacterDemo)
 
 CharacterDemo::CharacterDemo(Context* context) :
     Sample(context),
-    firstPerson_(false)
+    viewFromAbove_(true)
 {
     // Зарегистрируем фабрику и атрибуты для компонента Character, чтобы он мог быть создан с помощью CreateComponent и загружен / сохранен
     Character::RegisterObject(context);
@@ -122,13 +123,14 @@ void CharacterDemo::CreateScene()
 
     //создаём стены
 
-	//стена с пушками
-    for (unsigned int i = 0; i < 14; i++)
+	float boxScale = 4.0f;
+
+	//стена без пушек
+    for (unsigned int i = 0; i < 23; i++)
     {
-		float scale = 4.0f;
 		Node* boxNode = scene_->CreateChild("Box");
-		boxNode->SetPosition(Vector3(scale * 2.0f * i + scale, 2.5f, scale));
-		boxNode->SetScale(scale);
+		boxNode->SetPosition(Vector3(boxScale * i, 2.5f, boxScale));
+		boxNode->SetScale(boxScale);
 		StaticModel* boxObject = boxNode->CreateComponent<StaticModel>();
 		boxObject->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
 		boxObject->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
@@ -137,18 +139,100 @@ void CharacterDemo::CreateScene()
 
 		RigidBody* body = boxNode->CreateComponent<RigidBody>();
 		body->SetCollisionLayer(1);
-		body->SetMass(scale * 100.0f);
+		body->SetMass(boxScale * 100.0f);
 		CollisionShape* shape = boxNode->CreateComponent<CollisionShape>();
 		shape->SetBox(Vector3::ONE);
     }
 
-	//справа от пушек
-	for (unsigned int i = 0; i < 28; i++)
+	//создаём блок
+	Node* firstboxNode = scene_->CreateChild("Box");
+	firstboxNode->SetPosition(Vector3(0, 2.5f, 0));
+	firstboxNode->SetScale(boxScale);
+	StaticModel* firstboxObject = firstboxNode->CreateComponent<StaticModel>();
+	firstboxObject->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+	firstboxObject->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
+	firstboxObject->SetCastShadows(true);
+	firstboxObject->SetOccluder(false);
+
+	RigidBody* fbody = firstboxNode->CreateComponent<RigidBody>();
+	fbody->SetCollisionLayer(1);
+	fbody->SetMass(boxScale * 100.0f);
+	CollisionShape* fshape = firstboxNode->CreateComponent<CollisionShape>();
+	fshape->SetBox(Vector3::ONE);
+	
+	//создаём блок
+	Node* secboxNode = scene_->CreateChild("Box");
+	secboxNode->SetPosition(Vector3(boxScale * 24, 2.5f, -boxScale * 23));
+	secboxNode->SetScale(boxScale);
+	StaticModel* secboxObject = secboxNode->CreateComponent<StaticModel>();
+	secboxObject->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+	secboxObject->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
+	secboxObject->SetCastShadows(true);
+	secboxObject->SetOccluder(false);
+
+	RigidBody* secbody = secboxNode->CreateComponent<RigidBody>();
+	secbody->SetCollisionLayer(1);
+	secbody->SetMass(boxScale * 100.0f);
+	CollisionShape* sshape = secboxNode->CreateComponent<CollisionShape>();
+	sshape->SetBox(Vector3::ONE);
+
+	//создаём первую пушку
+	float scale = 1.5f;
+
+	Node* fcannonNode = scene_->CreateChild("Cannon");
+	fcannonNode->SetPosition(Vector3(boxScale * 23, 2.5f, boxScale + 2.0f));
+	fcannonNode->SetRotation(Quaternion(0.0f, -90.0f, 90.0f));
+	fcannonNode->SetScale(scale);
+
+	AnimatedModel* fcobject = fcannonNode->CreateComponent<AnimatedModel>();
+	fcobject->SetModel(cache->GetResource<Model>("Models/Cannon.mdl"));
+	fcobject->SetMaterial(cache->GetResource<Material>("Materials/Cannon.xml"));
+	fcobject->SetCastShadows(true);
+	fcobject->SetOccluder(false);
+
+	RigidBody* fcbody = fcannonNode->CreateComponent<RigidBody>();
+	fcbody->SetCollisionLayer(1);
+	fcbody->SetMass(scale * 300.0f);
+	fcbody->SetFriction(1);
+	fcbody->SetRollingFriction(1);
+
+	RigidBody* fcannonballPLaceBody = fcannonNode->GetChild("Forward", true)->GetChild("CannonballPlace", true)->CreateComponent<RigidBody>();
+	fcannonballPLaceBody->SetFriction(1);
+	fcannonballPLaceBody->SetRollingFriction(1);
+
+	CollisionShape* fcshape = fcannonNode->CreateComponent<CollisionShape>();
+	fcshape->SetCapsule(2.0f, 6.0f);
+
+	// и ядро в ней
+	Node* fcannonballNode = scene_->CreateChild("Cannonball");
+	const Vector3 fcpos = fcannonNode->GetChild("Forward", true)->GetChild("CannonballPlace", true)->GetWorldPosition();
+	fcannonballNode->SetPosition(fcpos);
+	fcannonballNode->SetScale(2.0f);
+
+	StaticModel* fcannonballObject = fcannonballNode->CreateComponent<StaticModel>();
+	fcannonballObject->SetModel(cache->GetResource<Model>("Models/Cannonball.mdl"));
+	fcannonballObject->SetMaterial(cache->GetResource<Material>("Materials/Cannonball.xml"));
+	fcannonballObject->SetCastShadows(true);
+	fcannonballObject->SetOccluder(false);
+
+	RigidBody* fcannonballBody = fcannonballNode->CreateComponent<RigidBody>();
+	fcannonballBody->SetCollisionLayer(1.0f);
+	fcannonballBody->SetMass(2.0f);
+	fcannonballBody->SetFriction(1);
+	fcannonballBody->SetRollingFriction(1.0);
+
+	CollisionShape* fcannonballShape = fcannonballNode->CreateComponent<CollisionShape>();
+	fcannonballShape->SetSphere(0.8f);
+
+	Shooting* fshoot = fcannonballNode->CreateComponent<Shooting>();
+	fshoot->SetParameters(fcpos, Vector3::BACK);
+
+	//противоположная стена без пушек
+	for (unsigned int i = 0; i < 25; i++)
 	{
-		float scale = 4.0f;
 		Node* boxNode = scene_->CreateChild("Box");
-		boxNode->SetPosition(Vector3(0, 2.5f, -scale * i));
-		boxNode->SetScale(scale);
+		boxNode->SetPosition(Vector3(boxScale * i, 2.5f, -boxScale * 24));
+		boxNode->SetScale(boxScale);
 		StaticModel* boxObject = boxNode->CreateComponent<StaticModel>();
 		boxObject->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
 		boxObject->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
@@ -157,166 +241,325 @@ void CharacterDemo::CreateScene()
 
 		RigidBody* body = boxNode->CreateComponent<RigidBody>();
 		body->SetCollisionLayer(1);
-		body->SetMass(scale * 100.0f);
+		body->SetMass(boxScale * 100.0f);
 		CollisionShape* shape = boxNode->CreateComponent<CollisionShape>();
 		shape->SetBox(Vector3::ONE);
 	}
 
-	//напротив пушек
-	for (unsigned int i = 0; i < 30; i++)
-	{
-		float scale = 4.0f;
-		Node* boxNode = scene_->CreateChild("Box");
-		boxNode->SetPosition(Vector3(scale * i, 2.5f, -scale * 24));
-		boxNode->SetScale(scale);
-		StaticModel* boxObject = boxNode->CreateComponent<StaticModel>();
-		boxObject->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
-		boxObject->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
-		boxObject->SetCastShadows(true);
-		boxObject->SetOccluder(false);
+	//создаём вторую пушку
+	Node* scannonNode = scene_->CreateChild("Cannon");
+	scannonNode->SetPosition(Vector3(-3.0f, 2.5f, -boxScale * 23));
+	scannonNode->SetRotation(Quaternion(-90.0f, -90.0f, 0.0f));
+	scannonNode->SetScale(scale);
 
-		RigidBody* body = boxNode->CreateComponent<RigidBody>();
-		body->SetCollisionLayer(1);
-		body->SetMass(scale * 100.0f);
-		CollisionShape* shape = boxNode->CreateComponent<CollisionShape>();
-		shape->SetBox(Vector3::ONE);
-	}
+	AnimatedModel* scobject = scannonNode->CreateComponent<AnimatedModel>();
+	scobject->SetModel(cache->GetResource<Model>("Models/Cannon.mdl"));
+	scobject->SetMaterial(cache->GetResource<Material>("Materials/Cannon.xml"));
+	scobject->SetCastShadows(true);
+	scobject->SetOccluder(false);
 
-	//слева от пушек
-	for (unsigned int i = 0; i < 24; i++)
-	{
-		float scale = 4.0f;
-		Node* boxNode = scene_->CreateChild("Box");
-		boxNode->SetPosition(Vector3(scale * 24, 2.5f, -scale * i));
-		boxNode->SetScale(scale);
-		StaticModel* boxObject = boxNode->CreateComponent<StaticModel>();
-		boxObject->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
-		boxObject->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
-		boxObject->SetCastShadows(true);
-		boxObject->SetOccluder(false);
+	RigidBody* scbody = scannonNode->CreateComponent<RigidBody>();
+	scbody->SetCollisionLayer(1);
+	scbody->SetMass(scale * 300.0f);
+	scbody->SetFriction(1);
+	scbody->SetRollingFriction(1);
 
-		RigidBody* body = boxNode->CreateComponent<RigidBody>();
-		body->SetCollisionLayer(1);
-		body->SetMass(scale * 100.0f);
-		CollisionShape* shape = boxNode->CreateComponent<CollisionShape>();
-		shape->SetBox(Vector3::ONE);
-	}
+	RigidBody* scannonballPLaceBody = scannonNode->GetChild("Forward", true)->GetChild("CannonballPlace", true)->CreateComponent<RigidBody>();
+	scannonballPLaceBody->SetFriction(1);
+	scannonballPLaceBody->SetRollingFriction(1);
+
+	CollisionShape* scshape = scannonNode->CreateComponent<CollisionShape>();
+	scshape->SetCapsule(2.0f, 6.0f);
+
+	// и ядро в ней
+	Node* scannonballNode = scene_->CreateChild("Cannonball");
+	const Vector3 scpos = scannonNode->GetChild("Forward", true)->GetChild("CannonballPlace", true)->GetWorldPosition();
+	scannonballNode->SetPosition(scpos);
+	scannonballNode->SetScale(2.0f);
+
+	StaticModel* scannonballObject = scannonballNode->CreateComponent<StaticModel>();
+	scannonballObject->SetModel(cache->GetResource<Model>("Models/Cannonball.mdl"));
+	scannonballObject->SetMaterial(cache->GetResource<Material>("Materials/Cannonball.xml"));
+	scannonballObject->SetCastShadows(true);
+	scannonballObject->SetOccluder(false);
+
+	RigidBody* scannonballBody = scannonballNode->CreateComponent<RigidBody>();
+	scannonballBody->SetCollisionLayer(1.0f);
+	scannonballBody->SetMass(2.0f);
+	scannonballBody->SetFriction(1);
+	scannonballBody->SetRollingFriction(1.0);
+
+	CollisionShape* scannonballShape = scannonballNode->CreateComponent<CollisionShape>();
+	scannonballShape->SetSphere(0.8f);
+
+	Shooting* sshoot = scannonballNode->CreateComponent<Shooting>();
+	sshoot->SetParameters(scpos, Vector3::RIGHT);
+
 	//конец создания стен
 
-	
-	//создаём...
-	for (unsigned int i = 0; i < 11; ++i)
+	/*
+	Создаём лабиринт. 
+	Используем упрощённый алгоритм на основе
+	алгоритма Эллера
+	*/
+
+	Vector3 x_OrientedWallScale = Vector3(boxScale, boxScale, 0.5f);
+	Vector3 z_OrientedWallScale = Vector3(0.5f, boxScale, boxScale); 
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::bernoulli_distribution d(0.5); //вероятность 50/50
+
+	for (int i = 0; i < 23; i++)
 	{
-		//...пушки
+		int x_OrientedWallCount = 0;
+		int z_OrientedWallCount = 0;
+		bool isEmpty = true; //флаг наличия пушки/блока в правой стене в текущей итерации
+		bool hasNinja = false; //флаг наличия ниндзи в коридоре
 
-		float scale = 1.5f;
-
-		Node* cannonNode = scene_->CreateChild("Cannon");
-		cannonNode->SetPosition(Vector3(8.0f + 8 * i, 2.0f, 6.0f));
-		cannonNode->SetRotation(Quaternion(0, -90.0f, 90.0f));
-		cannonNode->SetScale(scale);
-
-		AnimatedModel* object = cannonNode->CreateComponent<AnimatedModel>();
-		object->SetModel(cache->GetResource<Model>("Models/Cannon.mdl"));
-		object->SetMaterial(cache->GetResource<Material>("Materials/Cannon.xml"));
-		object->SetCastShadows(true);
-		object->SetOccluder(false);
-		
-		RigidBody* body = cannonNode->CreateComponent<RigidBody>();
-		body->SetCollisionLayer(1);
-		body->SetMass(scale * 300.0f);
-		body->SetFriction(1);
-		body->SetRollingFriction(1);
-
-		RigidBody* cannonballPLaceBody = cannonNode->GetChild("Forward", true)->GetChild("CannonballPlace", true)->CreateComponent<RigidBody>();
-		cannonballPLaceBody->SetFriction(1);
-		cannonballPLaceBody->SetRollingFriction(1);
-
-		CollisionShape* shape = cannonNode->CreateComponent<CollisionShape>();
-		shape->SetCapsule(2.0f, 6.0f);
-		
-		/*auto animCtrl = cannonNode->CreateComponent<AnimationController>();
-		animCtrl->PlayExclusive("Models/Shoot.ani", 0, true);
-		Animation* shootAnimation = cache->GetResource<Animation>("Models/Shoot.ani");
-		
-		AnimationState* state = object->AddAnimationState(shootAnimation);
-		// The state would fail to create (return null) if the animation was not found
-		if (state)
+		for (int j = 0; j < 22; ++j)
 		{
-			// Enable full blending weight and looping
-			state->SetWeight(1.0f);
-			state->SetLooped(true);
-			state->SetTime(5.0f);
-		}*/
+			Node* boxNode = scene_->CreateChild("Wall");
 
-		//...ядра
+			if (d(gen) == 1)
+			{
+				boxNode->SetPosition(Vector3(boxScale * j + boxScale + 1.7f, 2.5f, -boxScale * i));
+				boxNode->SetScale(z_OrientedWallScale);
+				x_OrientedWallCount = 0;
+				z_OrientedWallCount++;
+				hasNinja = true;
+			}
+			else 
+			{
+				boxNode->SetPosition(Vector3(boxScale * j + boxScale, 2.5f, -boxScale * i - 1.7f));
+				boxNode->SetScale(x_OrientedWallScale);
+				x_OrientedWallCount++;
+			}
 
-		Node* cannonballNode = scene_->CreateChild("Cannonball");
-		const Vector3 pos = cannonNode->GetChild("Forward", true)->GetChild("CannonballPlace", true)->GetWorldPosition();
-		cannonballNode->SetPosition(pos);
-		cannonballNode->SetScale(2.0f);
+			StaticModel* boxObject = boxNode->CreateComponent<StaticModel>();
+			boxObject->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+			boxObject->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
+			boxObject->SetCastShadows(true);
+			boxObject->SetOccluder(false);
 
-		StaticModel* cannonballObject = cannonballNode->CreateComponent<StaticModel>();
-		cannonballObject->SetModel(cache->GetResource<Model>("Models/Cannonball.mdl"));
-		cannonballObject->SetMaterial(cache->GetResource<Material>("Materials/Cannonball.xml"));
-		cannonballObject->SetCastShadows(true);
-		cannonballObject->SetOccluder(false);
+			RigidBody* body = boxNode->CreateComponent<RigidBody>();
+			body->SetCollisionLayer(1);
+			body->SetMass(boxScale * 100.0f);
+			CollisionShape* shape = boxNode->CreateComponent<CollisionShape>();
+			shape->SetBox(Vector3::ONE);
 
-		RigidBody* cannonballBody = cannonballNode->CreateComponent<RigidBody>();
-		cannonballBody->SetCollisionLayer(1.0f);
-		cannonballBody->SetMass(2.0f);
-		cannonballBody->SetFriction(1);
-		cannonballBody->SetRollingFriction(1.0);
+			//формируем левую стену
+			if (j == 21 && x_OrientedWallCount > 3)
+			{
+				/*
+				Если от левой стены в сторону правой
+				имеется коридор длинной более трёх  блоков,
+				создём пушку
+				*/
+				
+				float scale = 1.5f;
 
-		CollisionShape* cannonballShape = cannonballNode->CreateComponent<CollisionShape>();
-		cannonballShape->SetSphere(0.8f);
+				Node* cannonNode = scene_->CreateChild("Cannon");
+				cannonNode->SetPosition(Vector3(boxScale * 24 + 2.0f, 2.5f, -boxScale * i));
+				cannonNode->SetRotation(Quaternion(90.0f, -90.0f, 0.0f));
+				cannonNode->SetScale(scale);
 
-		const BoundingBox bounds(Vector3(4.0f, 0.0f, 0.0f), Vector3(100.0f, 0.0f, -93.0f));
-		Shooting* shoot = cannonballNode->CreateComponent<Shooting>();
-		shoot->SetParameters(pos, bounds);
-	}
+				AnimatedModel* object = cannonNode->CreateComponent<AnimatedModel>();
+				object->SetModel(cache->GetResource<Model>("Models/Cannon.mdl"));
+				object->SetMaterial(cache->GetResource<Material>("Materials/Cannon.xml"));
+				object->SetCastShadows(true);
+				object->SetOccluder(false);
 
-	
-	// создаём патруль из ниндзей
-	const unsigned NUM_MODELS = 10;
-	const float MODEL_MOVE_SPEED = 2.0f;
-	const float MODEL_ROTATE_SPEED = 100.0f;
-	const BoundingBox bounds(Vector3(4.0f, 0.0f, 0.0f), Vector3(100.0f, 0.0f, -93.0f));
+				RigidBody* body = cannonNode->CreateComponent<RigidBody>();
+				body->SetCollisionLayer(1);
+				body->SetMass(scale * 300.0f);
+				body->SetFriction(1);
+				body->SetRollingFriction(1);
 
-	for (unsigned i = 0; i < NUM_MODELS; ++i)
-	{
-		Node* ninjaNode = scene_->CreateChild("Ninja");
-		ninjaNode->SetPosition(Vector3(12.0f + 8 * i, 0.5f, -10.0f));
-		ninjaNode->SetRotation(Quaternion(0.0f, 360.0f, 0.0f));
+				RigidBody* cannonballPLaceBody = cannonNode->GetChild("Forward", true)->GetChild("CannonballPlace", true)->CreateComponent<RigidBody>();
+				cannonballPLaceBody->SetFriction(1);
+				cannonballPLaceBody->SetRollingFriction(1);
 
-		AnimatedModel* ninjaObject = ninjaNode->CreateComponent<AnimatedModel>();
-		ninjaObject->SetModel(cache->GetResource<Model>("Models/NinjaSnowWar/Ninja.mdl"));
-		ninjaObject->SetMaterial(cache->GetResource<Material>("Materials/NinjaSnowWar/Ninja.xml"));
-		ninjaObject->SetCastShadows(true);
+				CollisionShape* shape = cannonNode->CreateComponent<CollisionShape>();
+				shape->SetCapsule(2.0f, 6.0f);
 
-		Animation* walkAnimation = cache->GetResource<Animation>("Models/NinjaSnowWar/Ninja_Walk.ani");
+				// и ядро в ней
+				Node* cannonballNode = scene_->CreateChild("Cannonball");
+				const Vector3 pos = cannonNode->GetChild("Forward", true)->GetChild("CannonballPlace", true)->GetWorldPosition();
+				cannonballNode->SetPosition(pos);
+				cannonballNode->SetScale(2.0f);
 
-		AnimationState* state = ninjaObject->AddAnimationState(walkAnimation);
-		if (state)
-		{
-			state->SetWeight(1.0f);
-			state->SetLooped(true);
-			state->SetTime(Random(walkAnimation->GetLength()));
+				StaticModel* cannonballObject = cannonballNode->CreateComponent<StaticModel>();
+				cannonballObject->SetModel(cache->GetResource<Model>("Models/Cannonball.mdl"));
+				cannonballObject->SetMaterial(cache->GetResource<Material>("Materials/Cannonball.xml"));
+				cannonballObject->SetCastShadows(true);
+				cannonballObject->SetOccluder(false);
+
+				RigidBody* cannonballBody = cannonballNode->CreateComponent<RigidBody>();
+				cannonballBody->SetCollisionLayer(1.0f);
+				cannonballBody->SetMass(2.0f);
+				cannonballBody->SetFriction(1);
+				cannonballBody->SetRollingFriction(1.0);
+
+				CollisionShape* cannonballShape = cannonballNode->CreateComponent<CollisionShape>();
+				cannonballShape->SetSphere(0.8f);
+
+				Shooting* shoot = cannonballNode->CreateComponent<Shooting>();
+				shoot->SetParameters(pos, Vector3::LEFT);
+			}
+			else if (j == 21 && x_OrientedWallCount <= 3)
+			{
+				//создаём блок
+
+				Node* boxNode = scene_->CreateChild("Box");
+				boxNode->SetPosition(Vector3(boxScale * 24, 2.5f, -boxScale * i));
+				boxNode->SetScale(boxScale);
+				StaticModel* boxObject = boxNode->CreateComponent<StaticModel>();
+				boxObject->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+				boxObject->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
+				boxObject->SetCastShadows(true);
+				boxObject->SetOccluder(false);
+
+				RigidBody* body = boxNode->CreateComponent<RigidBody>();
+				body->SetCollisionLayer(1);
+				body->SetMass(boxScale * 100.0f);
+				CollisionShape* shape = boxNode->CreateComponent<CollisionShape>();
+				shape->SetBox(Vector3::ONE);
+			}
+
+			//формируем правую стену 
+			if (i != 0 && z_OrientedWallCount == 0 && x_OrientedWallCount > 3 && isEmpty == true)
+			{
+				/*
+				Если от правой стены в сторону левой
+				имеется коридор длинной более трёх  блоков,
+				создём пушку
+				*/
+				
+				float scale = 1.5f;
+
+				Node* cannonNode = scene_->CreateChild("Cannon");
+				cannonNode->SetPosition(Vector3(-3.0f, 2.5f, -boxScale * i));
+				cannonNode->SetRotation(Quaternion(-90.0f, -90.0f, 0.0f));
+				cannonNode->SetScale(scale);
+
+				AnimatedModel* object = cannonNode->CreateComponent<AnimatedModel>();
+				object->SetModel(cache->GetResource<Model>("Models/Cannon.mdl"));
+				object->SetMaterial(cache->GetResource<Material>("Materials/Cannon.xml"));
+				object->SetCastShadows(true);
+				object->SetOccluder(false);
+
+				RigidBody* body = cannonNode->CreateComponent<RigidBody>();
+				body->SetCollisionLayer(1);
+				body->SetMass(scale * 300.0f);
+				body->SetFriction(1);
+				body->SetRollingFriction(1);
+
+				RigidBody* cannonballPLaceBody = cannonNode->GetChild("Forward", true)->GetChild("CannonballPlace", true)->CreateComponent<RigidBody>();
+				cannonballPLaceBody->SetFriction(1);
+				cannonballPLaceBody->SetRollingFriction(1);
+
+				CollisionShape* shape = cannonNode->CreateComponent<CollisionShape>();
+				shape->SetCapsule(2.0f, 6.0f);
+
+				// и ядро в ней
+				Node* cannonballNode = scene_->CreateChild("Cannonball");
+				const Vector3 pos = cannonNode->GetChild("Forward", true)->GetChild("CannonballPlace", true)->GetWorldPosition();
+				cannonballNode->SetPosition(pos);
+				cannonballNode->SetScale(2.0f);
+
+				StaticModel* cannonballObject = cannonballNode->CreateComponent<StaticModel>();
+				cannonballObject->SetModel(cache->GetResource<Model>("Models/Cannonball.mdl"));
+				cannonballObject->SetMaterial(cache->GetResource<Material>("Materials/Cannonball.xml"));
+				cannonballObject->SetCastShadows(true);
+				cannonballObject->SetOccluder(false);
+
+				RigidBody* cannonballBody = cannonballNode->CreateComponent<RigidBody>();
+				cannonballBody->SetCollisionLayer(1.0f);
+				cannonballBody->SetMass(2.0f);
+				cannonballBody->SetFriction(1);
+				cannonballBody->SetRollingFriction(1.0);
+
+				CollisionShape* cannonballShape = cannonballNode->CreateComponent<CollisionShape>();
+				cannonballShape->SetSphere(0.8f);
+
+				Shooting* shoot = cannonballNode->CreateComponent<Shooting>();
+				shoot->SetParameters(pos, Vector3::RIGHT);
+
+				isEmpty = false;
+			}
+			else if (i != 0 && z_OrientedWallCount > 0 && isEmpty == true)
+			{
+				//создаём блок
+				
+				Node* boxNode = scene_->CreateChild("Box");
+				boxNode->SetPosition(Vector3(0, 2.5f, -boxScale * i));
+				boxNode->SetScale(boxScale);
+				StaticModel* boxObject = boxNode->CreateComponent<StaticModel>();
+				boxObject->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+				boxObject->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
+				boxObject->SetCastShadows(true);
+				boxObject->SetOccluder(false);
+
+				RigidBody* body = boxNode->CreateComponent<RigidBody>();
+				body->SetCollisionLayer(1);
+				body->SetMass(boxScale * 100.0f);
+				CollisionShape* shape = boxNode->CreateComponent<CollisionShape>();
+				shape->SetBox(Vector3::ONE);
+
+				isEmpty = false;
+				
+			}
+
+			/*
+			если имеется коридор
+			более трёх блоков, помещаем в него ниндзю
+			*/
+			if (z_OrientedWallCount > 1 && x_OrientedWallCount > 3 && hasNinja)
+			{
+				const float MODEL_MOVE_SPEED = 2.0f;
+
+				Node* ninjaNode = scene_->CreateChild("Ninja");
+				ninjaNode->SetPosition(Vector3(boxScale * j + boxScale - 2.7f, 2.5f, -boxScale * i));
+				ninjaNode->SetRotation(Quaternion(0.0f, 90.0f, 0.0f));
+
+				AnimatedModel* ninjaObject = ninjaNode->CreateComponent<AnimatedModel>();
+				ninjaObject->SetModel(cache->GetResource<Model>("Models/NinjaSnowWar/Ninja.mdl"));
+				ninjaObject->SetMaterial(cache->GetResource<Material>("Materials/NinjaSnowWar/Ninja.xml"));
+				ninjaObject->SetCastShadows(true);
+
+				Animation* walkAnimation = cache->GetResource<Animation>("Models/NinjaSnowWar/Ninja_Walk.ani");
+
+				AnimationState* state = ninjaObject->AddAnimationState(walkAnimation);
+				if (state)
+				{
+				state->SetWeight(1.0f);
+				state->SetLooped(true);
+				state->SetTime(Random(walkAnimation->GetLength()));
+				}
+
+				RigidBody* ninjaBody = ninjaNode->CreateComponent<RigidBody>();
+				ninjaBody->SetCollisionLayer(1.0f);
+				ninjaBody->SetMass(1.0f);
+				ninjaBody->SetFriction(1);
+				ninjaBody->SetRollingFriction(1.0);
+
+				CollisionShape* ninjaShape = ninjaNode->CreateComponent<CollisionShape>();
+				ninjaShape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
+
+				Mover* mover = ninjaNode->CreateComponent<Mover>();
+				mover->SetParameters(MODEL_MOVE_SPEED, Vector3::FORWARD);
+
+				hasNinja = false;
+			}
 		}
-
-		RigidBody* ninjaBody = ninjaNode->CreateComponent<RigidBody>();
-		ninjaBody->SetCollisionLayer(1.0f);
-
-		CollisionShape* ninjaShape = ninjaNode->CreateComponent<CollisionShape>();
-		ninjaShape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
-
-		Mover* mover = ninjaNode->CreateComponent<Mover>();
-		mover->SetParameters(MODEL_MOVE_SPEED, MODEL_ROTATE_SPEED, bounds);
 	}
+	//конец создания лабиринта
 
-	// Create billboard sets (floating smoke)
+
+	// Создаём красный дым
 	Node* smokeNode = scene_->CreateChild("Smoke");
-	smokeNode->SetPosition(Vector3(89.0f, 2.5f, -87.0f));
+	smokeNode->SetPosition(Vector3(boxScale * 23, 2.5f, -boxScale * 21));
 
 	BillboardSet* billboardObject = smokeNode->CreateComponent<BillboardSet>();
 	billboardObject->SetNumBillboards(1);
@@ -465,9 +708,9 @@ void CharacterDemo::HandleUpdate(StringHash eventType, VariantMap& eventData)
             // Set rotation already here so that it's updated every rendering frame instead of every physics frame
             character_->GetNode()->SetRotation(Quaternion(character_->controls_.yaw_, Vector3::UP));
 
-            // Switch between 1st and 3rd person
+            // Переключение между камерами
             if (input->GetKeyPress(KEY_F))
-                firstPerson_ = !firstPerson_;
+                viewFromAbove_ = !viewFromAbove_;
         }
     }
 }
@@ -491,10 +734,10 @@ void CharacterDemo::HandlePostUpdate(StringHash eventType, VariantMap& eventData
     Vector3 headWorldTarget = headNode->GetWorldPosition() + headDir * Vector3(0.0f, 0.0f, -1.0f);
     headNode->LookAt(headWorldTarget, Vector3(0.0f, 1.0f, 0.0f));
 
-    if (firstPerson_)
+    if (viewFromAbove_)
     {
-        cameraNode_->SetPosition(headNode->GetWorldPosition() + rot * Vector3(0.0f, 0.15f, 0.2f));
-        cameraNode_->SetRotation(dir);
+        cameraNode_->SetPosition(headNode->GetWorldPosition() + rot * Vector3(0.0f, 20.15f, -20.15f));
+		cameraNode_->SetRotation(dir * Quaternion(10.0f, 0.0f, 0.0f));
     }
     else
     {
